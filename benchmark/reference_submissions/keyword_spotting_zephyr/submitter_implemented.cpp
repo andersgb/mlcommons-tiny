@@ -22,9 +22,11 @@ in th_results is copied from the original in EEMBC.
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
+#include <zephyr/kernel.h>
+#include <zephyr/drivers/uart.h>
+#include <zephyr/drivers/gpio.h>
 
 #include "api/internally_implemented.h"
-
 #include "tensorflow/lite/micro/kernels/micro_ops.h"
 #include "tensorflow/lite/micro/tflite_bridge/micro_error_reporter.h"
 #include "tensorflow/lite/micro/micro_interpreter.h"
@@ -36,8 +38,10 @@ in th_results is copied from the original in EEMBC.
 #include "kws/kws_model_data.h"
 #include "kws/kws_model_settings.h"
 
-UnbufferedSerial pc(USBTX, USBRX);
-DigitalOut timestampPin(D7);
+// Zephyr device handles
+static const struct device *uart_dev;
+static const struct device *gpio_dev;
+#define TIMESTAMP_PIN 7
 
 constexpr int kTensorArenaSize = 200 * 1024;
 alignas(16) uint8_t tensor_arena[kTensorArenaSize];
@@ -148,37 +152,43 @@ void th_printf(const char *p_fmt, ...) {
 char th_getchar() { return getchar(); }
 
 void th_serialport_initialize(void) {
-# if EE_CFG_ENERGY_MODE==1
-  pc.baud(9600);
-# else
-  pc.baud(115200);
-# endif
+    uart_dev = DEVICE_DT_GET(DT_CHOSEN(zephyr_console));
+    if (!device_is_ready(uart_dev)) {
+        return;
+    }
+
+#if EE_CFG_ENERGY_MODE==1
+    struct uart_config cfg;
+    uart_config_get(uart_dev, &cfg);
+    cfg.baudrate = 9600;
+    uart_configure(uart_dev, &cfg);
+#else
+    struct uart_config cfg;
+    uart_config_get(uart_dev, &cfg);
+    cfg.baudrate = 115200;
+    uart_configure(uart_dev, &cfg);
+#endif
 }
 
 void th_timestamp(void) {
-# if EE_CFG_ENERGY_MODE==1
-  timestampPin = 0;
-  for (int i=0; i<100'000; ++i) {
-    asm("nop");
-  }
-  timestampPin = 1;
-# else
-  unsigned long microSeconds = 0ul;
-  /* USER CODE 2 BEGIN */
-  microSeconds = us_ticker_read();
-  /* USER CODE 2 END */
-  /* This message must NOT be changed. */
-  th_printf(EE_MSG_TIMESTAMP, microSeconds);
-# endif
+#if EE_CFG_ENERGY_MODE==1
+    gpio_pin_set(gpio_dev, TIMESTAMP_PIN, 0);
+    k_busy_wait(100000); // 100ms delay
+    gpio_pin_set(gpio_dev, TIMESTAMP_PIN, 1);
+#else
+    uint32_t microseconds = k_uptime_get_32() * 1000;
+    th_printf(EE_MSG_TIMESTAMP, microseconds);
+#endif
 }
 
 void th_timestamp_initialize(void) {
-  /* USER CODE 1 BEGIN */
-  // Setting up BOTH perf and energy here
-  /* USER CODE 1 END */
-  /* This message must NOT be changed. */
-  th_printf(EE_MSG_TIMESTAMP_MODE);
-  /* Always call the timestamp on initialize so that the open-drain output
-     is set to "1" (so that we catch a falling edge) */
-  th_timestamp();
+    gpio_dev = DEVICE_DT_GET(DT_NODELABEL(gpio0));
+    if (!device_is_ready(gpio_dev)) {
+        return;
+    }
+
+    gpio_pin_configure(gpio_dev, TIMESTAMP_PIN, GPIO_OUTPUT_ACTIVE);
+
+    th_printf(EE_MSG_TIMESTAMP_MODE);
+    th_timestamp();
 }
