@@ -24,7 +24,7 @@ in th_results is copied from the original in EEMBC.
 #include <cstring>
 
 #include "api/internally_implemented.h"
-#include "mbed.h"
+
 #include "tensorflow/lite/micro/kernels/micro_ops.h"
 #include "tensorflow/lite/micro/micro_error_reporter.h"
 #include "tensorflow/lite/micro/micro_interpreter.h"

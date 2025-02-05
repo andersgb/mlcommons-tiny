@@ -16,7 +16,7 @@ limitations under the License.
 #define V0_1_KWS_KWS_INPUTS_H_
 
 #include "kws/kws_model_settings.h"
-#include "mbed.h"
+
 constexpr int kNumKwsTestInputs = 1;
 extern const int8_t g_kws_inputs[kNumKwsTestInputs][kKwsInputSize];
 
