@@ -26,7 +26,7 @@ in th_results is copied from the original in EEMBC.
 #include "api/internally_implemented.h"
 
 #include "tensorflow/lite/micro/kernels/micro_ops.h"
-#include "tensorflow/lite/micro/micro_error_reporter.h"
+#include "tensorflow/lite/micro/tflite_bridge/micro_error_reporter.h"
 #include "tensorflow/lite/micro/micro_interpreter.h"
 #include "tensorflow/lite/micro/micro_mutable_op_resolver.h"
 #include "tensorflow/lite/schema/schema_generated.h"
@@ -169,7 +169,7 @@ void th_timestamp(void) {
   /* USER CODE 2 END */
   /* This message must NOT be changed. */
   th_printf(EE_MSG_TIMESTAMP, microSeconds);
-# endif  
+# endif
 }
 
 void th_timestamp_initialize(void) {
