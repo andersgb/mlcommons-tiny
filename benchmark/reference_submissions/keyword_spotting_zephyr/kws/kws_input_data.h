@@ -14,7 +14,7 @@ limitations under the License.
 
 #ifndef V0_1_KWS_KWS_INPUTS_H_
 #define V0_1_KWS_KWS_INPUTS_H_
-
+#include <cstdint>
 #include "kws/kws_model_settings.h"
 
 constexpr int kNumKwsTestInputs = 1;

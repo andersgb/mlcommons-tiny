@@ -50,7 +50,7 @@ tflite::MicroModelRunner<int8_t, int8_t, 6> *runner;
 
 // Implement this method to prepare for inference and preprocess inputs.
 void th_load_tensor() {
-  int8_t input[kKwsInputSize];
+/*   int8_t input[kKwsInputSize];
 
   size_t bytes = ee_get_buffer(reinterpret_cast<uint8_t *>(input),
                                kKwsInputSize * sizeof(int8_t));
@@ -59,7 +59,8 @@ void th_load_tensor() {
               kKwsInputSize);
     return;
   }
-  runner->SetInput(input);
+ */
+  runner->SetInput(g_kws_inputs[0]);
 }
 
 

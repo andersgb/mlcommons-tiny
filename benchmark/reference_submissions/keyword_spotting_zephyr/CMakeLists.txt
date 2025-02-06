@@ -10,5 +10,6 @@ target_sources(app PRIVATE
     main.cpp
     api/internally_implemented.cpp
     kws/kws_model_data.cc
+    kws/kws_input_data.cc
     submitter_implemented.cpp
 )
