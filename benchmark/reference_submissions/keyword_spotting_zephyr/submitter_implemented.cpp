@@ -39,10 +39,6 @@ in th_results is copied from the original in EEMBC.
 #include "kws/kws_model_data.h"
 #include "kws/kws_model_settings.h"
 
-// Zephyr device handles
-static const struct device *gpio_dev;
-#define TIMESTAMP_PIN 7
-
 constexpr int kTensorArenaSize = 100 * 1024;
 alignas(16) uint8_t tensor_arena[kTensorArenaSize];
 
@@ -157,24 +153,11 @@ void th_serialport_initialize(void) {
 }
 
 void th_timestamp(void) {
-#if EE_CFG_ENERGY_MODE==1
-    gpio_pin_set(gpio_dev, TIMESTAMP_PIN, 0);
-    k_busy_wait(100000); // 100ms delay
-    gpio_pin_set(gpio_dev, TIMESTAMP_PIN, 1);
-#else
     uint32_t microseconds = k_uptime_get_32() * 1000;
     th_printf(EE_MSG_TIMESTAMP, microseconds);
-#endif
 }
 
 void th_timestamp_initialize(void) {
-    gpio_dev = DEVICE_DT_GET(DT_NODELABEL(gpio0));
-    if (!device_is_ready(gpio_dev)) {
-        return;
-    }
-
-    gpio_pin_configure(gpio_dev, TIMESTAMP_PIN, GPIO_OUTPUT_ACTIVE);
-
     th_printf(EE_MSG_TIMESTAMP_MODE);
     th_timestamp();
 }
