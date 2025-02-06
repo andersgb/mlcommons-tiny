@@ -28,8 +28,7 @@ class MicroModelRunner {
                    uint8_t* tensor_arena, int tensor_arena_size)
       : model_(tflite::GetModel(model)),
         reporter_(&micro_reporter_),
-        interpreter_(model_, resolver, tensor_arena, tensor_arena_size,
-                     reporter_) {
+        interpreter_(model_, resolver, tensor_arena, tensor_arena_size) {
     interpreter_.AllocateTensors();
   }
 
