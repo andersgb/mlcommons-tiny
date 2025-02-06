@@ -43,7 +43,7 @@ static const struct device *uart_dev;
 static const struct device *gpio_dev;
 #define TIMESTAMP_PIN 7
 
-constexpr int kTensorArenaSize = 200 * 1024;
+constexpr int kTensorArenaSize = 100 * 1024;
 alignas(16) uint8_t tensor_arena[kTensorArenaSize];
 
 tflite::MicroModelRunner<int8_t, int8_t, 6> *runner;
