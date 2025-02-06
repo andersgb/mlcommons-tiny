@@ -25,6 +25,7 @@ in th_results is copied from the original in EEMBC.
 #include <zephyr/kernel.h>
 #include <zephyr/drivers/uart.h>
 #include <zephyr/drivers/gpio.h>
+#include <zephyr/console/console.h>
 
 #include "api/internally_implemented.h"
 #include "tensorflow/lite/micro/kernels/micro_ops.h"
@@ -39,7 +40,6 @@ in th_results is copied from the original in EEMBC.
 #include "kws/kws_model_settings.h"
 
 // Zephyr device handles
-static const struct device *uart_dev;
 static const struct device *gpio_dev;
 #define TIMESTAMP_PIN 7
 
@@ -149,25 +149,10 @@ void th_printf(const char *p_fmt, ...) {
   va_end(args);
 }
 
-char th_getchar() { return getchar(); }
+char th_getchar() { return console_getchar(); }
 
 void th_serialport_initialize(void) {
-    uart_dev = DEVICE_DT_GET(DT_CHOSEN(zephyr_console));
-    if (!device_is_ready(uart_dev)) {
-        return;
-    }
-
-#if EE_CFG_ENERGY_MODE==1
-    struct uart_config cfg;
-    uart_config_get(uart_dev, &cfg);
-    cfg.baudrate = 9600;
-    uart_configure(uart_dev, &cfg);
-#else
-    struct uart_config cfg;
-    uart_config_get(uart_dev, &cfg);
-    cfg.baudrate = 115200;
-    uart_configure(uart_dev, &cfg);
-#endif
+  console_init();
 }
 
 void th_timestamp(void) {
