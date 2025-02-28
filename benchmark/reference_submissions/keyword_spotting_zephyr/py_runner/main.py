@@ -18,7 +18,7 @@ if __name__ == "__main__":
     def write(ser, command):
         ser.write(command.encode('utf-8'))
         print(f"TX> {command}")
-        time.sleep(0.01)
+        time.sleep(0.05)
 
     port = '/dev/ttyACM1'  # Replace with your serial port
     baudrate = 115200
@@ -28,24 +28,26 @@ if __name__ == "__main__":
         ser = serial.Serial(port, baudrate)
         print(f"Connected to {port} at {baudrate} baud")
 
-        with open(args.dataset_path / y_labels["file"][0], "rb") as file:
-            binary_data = file.read()
-        n_bytes = len(binary_data)
+        for row in y_labels.head(5).iter_rows(named=True):
+            with open(args.dataset_path / row["file"], "rb") as file:
+                binary_data = file.read()
+            n_bytes = len(binary_data)
 
-        # Send the "db load" command
-        command = f"db load {n_bytes}%"
-        write(ser, command)
+            # Send the "db load" command
+            command = f"db load {n_bytes}%"
+            write(ser, command)
 
-        # Convert binary data to hex representation
-        hex_data = ''.join([f'{byte:02x}' for byte in binary_data])
+            # Convert binary data to hex representation
+            hex_data = ''.join([f'{byte:02x}' for byte in binary_data])
 
-        # Send the hex data in chunks
-        for i in range(0, len(hex_data), chunk_size):
-            chunk = hex_data[i:i + chunk_size]
-            chunk_command = f"db {chunk}%"
-            write(ser, chunk_command)
+            # Send the hex data in chunks
+            for i in range(0, len(hex_data), chunk_size):
+                chunk = hex_data[i:i + chunk_size]
+                chunk_command = f"db {chunk}%"
+                write(ser, chunk_command)
 
-        print(f"Sent: {args.dataset_path / y_labels['file'][0]}, {len(binary_data)} bytes")
+            write(ser, "infer 1 0%")
+            print(f"Sent: {args.dataset_path / row['file']}, ground truth {row["class"]}")
 
     except serial.SerialException as e:
         print(f"Error: Could not open serial port: {e}")
