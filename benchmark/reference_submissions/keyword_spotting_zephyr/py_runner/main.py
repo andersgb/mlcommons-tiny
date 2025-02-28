@@ -22,7 +22,7 @@ if __name__ == "__main__":
 
     port = '/dev/ttyACM1'  # Replace with your serial port
     baudrate = 115200
-    chunk_size = 128
+    chunk_size = 72
     try:
         # Open the serial port
         ser = serial.Serial(port, baudrate)
