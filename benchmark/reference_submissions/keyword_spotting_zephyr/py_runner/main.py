@@ -2,6 +2,8 @@ import argparse
 from pathlib import Path
 import polars as pl
 import serial
+import time
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
@@ -13,29 +15,37 @@ if __name__ == "__main__":
         .rename({"column_1": "file", "column_2": "n_classes", "column_3": "class"})
     )
 
+    def write(ser, command):
+        ser.write(command.encode('utf-8'))
+        print(f"TX> {command}")
+        time.sleep(0.01)
 
     port = '/dev/ttyACM1'  # Replace with your serial port
     baudrate = 115200
-
+    chunk_size = 128
     try:
         # Open the serial port
         ser = serial.Serial(port, baudrate)
         print(f"Connected to {port} at {baudrate} baud")
 
-        while True:
-            # Get input from the user
-            message = input("Enter message to send (or 'exit'): ")
+        with open(args.dataset_path / y_labels["file"][0], "rb") as file:
+            binary_data = file.read()
+        n_bytes = len(binary_data)
 
-            if message.lower() == 'exit':
-                break
+        # Send the "db load" command
+        command = f"db load {n_bytes}%"
+        write(ser, command)
 
-            # Encode the message to bytes
-            # You might need to adjust the encoding based on your application
-            message_bytes = message.encode('utf-8')
+        # Convert binary data to hex representation
+        hex_data = ''.join([f'{byte:02x}' for byte in binary_data])
 
-            # Send the bytes
-            ser.write(message_bytes)
-            print(f"Sent: {message}")
+        # Send the hex data in chunks
+        for i in range(0, len(hex_data), chunk_size):
+            chunk = hex_data[i:i + chunk_size]
+            chunk_command = f"db {chunk}%"
+            write(ser, chunk_command)
+
+        print(f"Sent: {args.dataset_path / y_labels['file'][0]}, {len(binary_data)} bytes")
 
     except serial.SerialException as e:
         print(f"Error: Could not open serial port: {e}")
