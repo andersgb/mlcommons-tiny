@@ -51,8 +51,13 @@ void th_load_tensor() {
   size_t bytes = ee_get_buffer(reinterpret_cast<uint8_t *>(input),
                                kKwsInputSize * sizeof(int8_t));
   if (bytes / sizeof(int8_t) != kKwsInputSize) {
-    th_printf("Input db has %d elemented, expected %d\n", bytes / sizeof(int8_t),
+    th_printf("Input db has %d elements, expected %d\n", bytes / sizeof(int8_t),
               kKwsInputSize);
+    th_printf("First few elements: ");
+    for (size_t i = 0; i < bytes / sizeof(int8_t); i++) {
+      th_printf("%d ", input[i]);
+    }
+    th_printf("\n");
     return;
   }
   runner->SetInput(input);
