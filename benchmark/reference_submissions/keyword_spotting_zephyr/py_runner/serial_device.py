@@ -69,7 +69,7 @@ class SerialDevice:
 
     while True:
       resp = self.read_line()
-      print(resp)
+
       end_of_resp = (end if end is not None else self._end_of_response) in resp
       if resp:
         lines.append(resp)
