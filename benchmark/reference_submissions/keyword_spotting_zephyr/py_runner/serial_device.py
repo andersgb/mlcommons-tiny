@@ -71,9 +71,10 @@ class SerialDevice:
       resp = self.read_line()
 
       end_of_resp = (end if end is not None else self._end_of_response) in resp
-      if resp:
-        lines.append(resp)
       if end_of_resp:
         break
+      if resp:
+        lines.append(resp)
+
 
     return lines if len(lines) != 1 else lines[0]
