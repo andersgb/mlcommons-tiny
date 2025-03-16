@@ -41,6 +41,7 @@ typedef enum { EE_STATUS_OK = 0, EE_STATUS_ERROR } ee_status_t;
 #define EE_CMD_SIZE 80u
 #define EE_CMD_DELIMITER " "
 #define EE_CMD_TERMINATOR '%'
+#define EE_CMD_END_OF_RESPONSE "<EOR>\r\n"
 
 #define EE_CMD_NAME "name"
 #define EE_CMD_TIMESTAMP "timestamp"

@@ -80,11 +80,15 @@ void ee_serial_command_parser_callback(char *p_command) {
 
   if (strncmp(tok, EE_CMD_NAME, EE_CMD_SIZE) == 0) {
     th_printf(EE_MSG_NAME, EE_DEVICE_NAME, TH_VENDOR_NAME_STRING);
+    th_printf(EE_CMD_END_OF_RESPONSE);
   } else if (strncmp(tok, EE_CMD_TIMESTAMP, EE_CMD_SIZE) == 0) {
     th_timestamp();
+    th_printf(EE_CMD_END_OF_RESPONSE);
   } else if (ee_profile_parse(tok) == EE_ARG_CLAIMED) {
+    th_printf(EE_CMD_END_OF_RESPONSE);
   } else {
     th_printf(EE_ERR_CMD, tok);
+    th_printf(EE_CMD_END_OF_RESPONSE);
   }
 
   th_printf(EE_MSG_READY);
